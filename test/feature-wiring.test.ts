@@ -9,7 +9,7 @@ import { credentialsMock } from './support/credentials.js'
 import { createGateway, json, sse } from './support/gateway.js'
 import { chatText, responseText } from './support/wire.js'
 
-test('host registers four resources, projects preferences and emits real priority wire bodies, then disposes without deleting settings', async () => {
+test('host registers four resources and emits priority/session cache-key wire bodies, then disposes without deleting settings', async () => {
   const gateway = await createGateway()
   const models = [
     { id: 'codex/responses', owned_by: 'codex', reasoning_levels: ['none', 'high'], native_endpoints: ['/v1/responses'], service_tiers: [{ id: 'priority' }] },
@@ -56,7 +56,11 @@ test('host registers four resources, projects preferences and emits real priorit
     }
     const generated = gateway.requests.filter(r => r.method === 'POST' && ['/v1/responses', '/v1/chat/completions'].includes(r.path))
     expect(generated).toHaveLength(2)
-    for (const request of generated) expect(request.body).toMatchObject({ service_tier: 'priority' })
+    const responses = generated.find(r => r.path === '/v1/responses')
+    const chat = generated.find(r => r.path === '/v1/chat/completions')
+    expect(responses?.body).toMatchObject({ service_tier: 'priority', prompt_cache_key: 'S' })
+    expect(chat?.body).toMatchObject({ service_tier: 'priority' })
+    expect(chat?.body).not.toHaveProperty('prompt_cache_key') // pi-ai gates custom-host Chat keys behind long-retention opt-in.
     const path = join(home, 'plugins/dsh-magpie-connector/settings.json')
     const saved = readFileSync(path, 'utf8')
     for (const dispose of effects.splice(0).reverse()) await dispose()

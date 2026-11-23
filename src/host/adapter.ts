@@ -191,7 +191,7 @@ export class MagpieAdapter extends LlmAdapter {
       }
       const events=provider.stream(model,context,{apiKey:op.key,fetch:watchedFetch,signal,maxRetries:0,
         ...(options.maxTokens!==undefined?{maxTokens:options.maxTokens}:{}),...(options.temperature!==undefined?{temperature:options.temperature}:{}),
-        ...(options.reasoningEffort?{reasoningEffort:options.reasoningEffort}:{}),...(fast?{serviceTier:'priority',onPayload:(payload:unknown)=>{(payload as Record<string,unknown>).service_tier='priority'}}:{}),
+        ...(options.reasoningEffort?{reasoningEffort:options.reasoningEffort}:{}),...(options.sessionId?{sessionId:options.sessionId}:{}),...(fast?{serviceTier:'priority',onPayload:(payload:unknown)=>{(payload as Record<string,unknown>).service_tier='priority'}}:{}),
       } as never)
       const args=new Map<number,string>()
       for await(const event of events){

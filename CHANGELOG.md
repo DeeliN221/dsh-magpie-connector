@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.7.5 — 2026-11-23
+
+- Forward the DSH session ID to pi-ai so Responses requests to a custom gateway can include a session-scoped `prompt_cache_key`. Add wire-level coverage documenting that custom-host Chat Completions does not emit a body cache key under the default short-retention setting.
+
 ## 0.7.4 — 2026-11-20
 
 - **多账号行改为两行，信息不再被挤掉。** 账号标识与完整 plan 一行，窗口名、到期时间、读数与进度条一行；只有账号标识会截断（悬停看全名），plan、到期时间与读数完整显示。
