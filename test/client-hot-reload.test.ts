@@ -50,7 +50,6 @@ const SLOTS = [
   'settings.section#dsh-magpie-connector',
   'settings.section.icon#dsh-magpie-connector',
   'sidebar.footer.action#magpie-usage',
-  'conversation.input.right#dsh-magpie-connector-speed',
 ]
 
 it('重建后的客户端 bundle 可以重新 apply（语言字典随条目释放）', () => {
@@ -58,6 +57,7 @@ it('重建后的客户端 bundle 可以重新 apply（语言字典随条目释�
   const first = generation(locale)
   first.apply()
   expect(first.registered.map(r => `${r.name}#${r.id}`)).toEqual(SLOTS)
+  expect(first.registered.some(r => r.name.startsWith('conversation.input.'))).toBe(false)
   first.teardown()
 
   const second = generation(locale)
