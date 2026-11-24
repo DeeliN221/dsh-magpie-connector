@@ -1,7 +1,6 @@
 import { MagpieSettings } from './SettingsPage.js'
 import { ensureStyles } from './styles.js'
 import { SidebarUsage } from './SidebarUsage.js'
-import { SpeedSelect, createModelWatcher, createSpeedLoader, createSpeedSetter, type ModelDirectories } from './SpeedSelect.js'
 import { createFetchApi, type Api } from './api.js'
 import { MagpieSettingsNavIcon } from './settings-nav-icon.js'
 import { NS, bindLocale, en, zh } from './locales.js'
@@ -33,7 +32,7 @@ export function apply(ctx: ClientContext, api: Api = createFetchApi()): void {
   // re-applies this entry against the same long-lived locale service, which
   // refuses a namespace it already holds ("already has locale"). Leaking the
   // old dictionaries made every hot reload fail and took the sidebar card,
-  // settings section and speed control down until a page reload.
+  // settings section down until a page reload.
   ctx.effect(() => ctx.locale.register(NS, { zh, en }), 'dsh-magpie-connector: dictionaries')
   ctx.effect(() => { const element = ensureStyles(); return () => { element?.remove() } }, 'dsh-magpie-connector: styles')
   bindLocale(ctx.locale.bind(NS) as unknown as (key: import('./locales.js').MagpieKey) => string)
@@ -46,22 +45,10 @@ export function apply(ctx: ClientContext, api: Api = createFetchApi()): void {
   ctx.slots.inject('settings.section.icon', () => ctx.slots.register({
     name: 'settings.section.icon', id: 'dsh-magpie-connector',
   }, MagpieSettingsNavIcon))
-  // Current model comes from ui-model-selection's `modelDirectories`, resolved lazily
-  // per read so registration order never matters (same as subscriptions' Speed).
   // Sidebar quota card: the owner slot passes `wide` as an owner prop; the
   // injected face only carries the API.
   ctx.slots.inject('sidebar.footer.action', () => ctx.slots.register({
     name: 'sidebar.footer.action', id: 'magpie-usage', order: 10,
     inject: () => ({ api }),
   }, SidebarUsage))
-  // Current model comes from ui-model-selection's `modelDirectories`, resolved lazily
-  // per read so registration order never matters (same as subscriptions' Speed).
-  const models = () => ctx.get('modelDirectories') as ModelDirectories | undefined
-  ctx.slots.inject('conversation.input.right', () => ctx.slots.register({
-    name: 'conversation.input.right', id: 'dsh-magpie-connector-speed', order: 1,
-    inject: (sessionId?: unknown) => {
-      const id = typeof sessionId === 'string' ? sessionId : ''
-      return { loadSpeed: createSpeedLoader(api, models, id), setSpeed: createSpeedSetter(api, id), watchModel: createModelWatcher(models, id) }
-    },
-  }, SpeedSelect))
 }
