@@ -7,6 +7,7 @@ import {
 import { GatewayTransport, validateIdentity, type ConnectionIdentity } from './transport.js'
 import { LineSelector, type Probe } from './selection.js'
 import { ROUTING_OWNER, mapCatalog, routeOf, type CatalogModel } from './catalog.js'
+import { canonicalVisibility } from './owner-alias.js'
 import type { PublishResult } from './registrar.js'
 import { DEFAULT_SIDEBAR_WINDOWS, migrateLegacySidebarWindow, normalizeSidebarWindows, type SidebarWindowKind } from '../shared/sidebar-window.js'
 
@@ -157,6 +158,8 @@ export class MagpieRuntime {
     this.newId = options.newId ?? randomHexId
     this.checkTimeoutMs = options.checkTimeoutMs ?? CHECK_TIMEOUT_MS
     this.failedFields = this.loadConfig().pending
+    // Saved visibility keys written before an alias existed land on the canonical owner.
+    this.store.value.visibleModels = canonicalVisibility(this.store.value.visibleModels ?? {})
     try { this.owners = validateKnownOwners(this.store.value.knownOwners) } catch { this.owners = []; this.knownOwnersReset = true }
   }
   /** Route ids of the persisted owners: the full set the adapter should own. */

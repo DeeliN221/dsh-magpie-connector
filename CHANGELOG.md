@@ -3,6 +3,7 @@
 ## 0.7.5 — 2026-11-23
 
 - Forward the DSH session ID to pi-ai so Responses requests to a custom gateway can include a session-scoped `prompt_cache_key`. Add wire-level coverage documenting that custom-host Chat Completions does not emit a body cache key under the default short-retention setting.
+- Restore the local owner-alias patch on top of 0.7.5: `deepseek-personal` folds onto `deepseek` and `openai-hua` onto `openai`, so one vendor keeps one route, one picker group and one saved visibility key. The 0.6.12 install carried `lib/host/owner-alias.js`; 0.7.5's catalog rework dropped the module while keeping the same `provider`/`owner` keys, so the alias is re-applied at all three consumers (`ownerKey`, catalog `provider`, `knownOwners`, stored `visibleModels`).
 
 ## 0.7.4 — 2026-11-20
 

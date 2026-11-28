@@ -2,6 +2,7 @@ import { existsSync, readFileSync, mkdirSync, writeFileSync, renameSync } from '
 import { randomBytes } from 'node:crypto'
 import { dirname } from 'node:path'
 import type { SidebarWindowKind } from '../shared/sidebar-window.js'
+import { canonicalOwner } from './owner-alias.js'
 
 export type AccessMode = 'direct' | 'cloudflare'
 export type CredentialField = 'key' | 'accessClientId' | 'accessClientSecret'
@@ -122,5 +123,5 @@ export function validateKnownOwners(value: unknown): string[] {
   if (!Array.isArray(value) || value.length > MAX_OWNERS) throw new Error('Invalid knownOwners')
   for (const key of value) if (typeof key !== 'string' || key.length < 1 || key.length > 48 || !OWNER_KEY.test(key)) throw new Error('Invalid knownOwners')
   if (new Set(value).size !== value.length) throw new Error('Invalid knownOwners')
-  return [...value] as string[]
+  return [...new Set((value as string[]).map(canonicalOwner))]
 }
