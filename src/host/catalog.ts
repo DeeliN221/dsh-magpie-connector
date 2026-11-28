@@ -1,4 +1,5 @@
 import type { LlmResolvedModelInfo } from '@deepseek-ai/dsh-llm'
+import { canonicalOwner } from './owner-alias.js'
 /** Fixed pi-ai/replay transport identity. It is NOT a registered LLM route. */
 export const TRANSPORT_ID = 'dsh-magpie-connector'
 const ROUTE_PREFIX = `${TRANSPORT_ID}-`
@@ -8,7 +9,7 @@ const ROUTE = /^dsh-magpie-connector-[a-z0-9][a-z0-9._-]{0,47}$/
 export function ownerKey(ownedBy: unknown): string {
   if (typeof ownedBy !== 'string') return 'other'
   const key = ownedBy.trim().toLowerCase()
-  return key.length >= 1 && key.length <= 48 && OWNER_KEY.test(key) ? key : 'other'
+  return key.length >= 1 && key.length <= 48 && OWNER_KEY.test(key) ? canonicalOwner(key) : 'other'
 }
 /** Display name depends on the owner key alone, never on catalog content. */
 export const ownerLabel = (key: string): string => key === 'other' ? 'Magpie (Other)' : `Magpie (${key.charAt(0).toUpperCase()}${key.slice(1)})`
@@ -53,7 +54,7 @@ export function mapCatalog(body: unknown): CatalogModel[] {
     // `routing` names routing entries only; an ordinary model that would also map to it falls back to `other`.
     const visibility = ownedBy ?? raw.id.split('/')[0], owner = ownerKey(raw.owned_by)
     const keys = routingKind ? { provider: ROUTING_OWNER, owner: ROUTING_OWNER, routingKind, fallbackOwner: owner === ROUTING_OWNER ? 'other' : owner }
-      : { provider: visibility.toLowerCase() === ROUTING_OWNER ? 'other' : visibility, owner: owner === ROUTING_OWNER ? 'other' : owner }
+      : { provider: visibility.toLowerCase() === ROUTING_OWNER ? 'other' : canonicalOwner(visibility), owner: owner === ROUTING_OWNER ? 'other' : owner }
     return [{ info, ...keys, efforts, ...(outputLimit !== undefined ? { outputLimit } : {}),
       nativeEndpoints: strings(raw.native_endpoints), serviceTiers: Array.isArray(raw.service_tiers) ? raw.service_tiers.flatMap((t: { id?: unknown }) => typeof t?.id === 'string' ? [t.id] : []) : [] }]
   })
