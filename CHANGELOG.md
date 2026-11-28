@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.7.6 — 2026-11-28
+
+- 版本号推进（内容来自分支收敛）：`fix/session-cache-key-forwarding-20261123` 的 owner-alias 补丁与 `lib/` 重建已并入主干（合并 `80a82f2b`），分支误提交的 `node_modules/` 跟踪已清理（`23b592f8`）。0.7.5 未在 npm 发布（latest 仍为 0.7.4），故 patch 位推进到 0.7.6。本提交只推进版本号，无额外行为变更。
+
 ## 0.7.5 — 2026-11-23
 
 - Forward the DSH session ID to pi-ai so Responses requests to a custom gateway can include a session-scoped `prompt_cache_key`. Add wire-level coverage documenting that custom-host Chat Completions does not emit a body cache key under the default short-retention setting.
